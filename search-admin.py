@@ -6,34 +6,59 @@ user = raw_input("Username: ")
 passwd = getpass.getpass("Password: ")
 
 
-def sqlF(s):
-	process = Popen(['mysql', db, '-u', user, '-p', passwd], stdout=PIPE, stdin=PIPE)
-	output = process.communicate('source ' + filename)[0]
+def execute(cursor,file):
+	_sql=None
+	with open(file, 'r') as myfile:
+		_sql=myfile.read()
+	cursor.execute(_sql)
+	return cursor.fetchall()	
+
 
 db = MySQLdb.connect("localhost", user, passwd)
 
 cursor = db.cursor()
 
-sql=None
-with open('search-wp.sql', 'r') as myfile:
-    sql=myfile.read()
-
-cursor.execute(sql)
-
-results = cursor.fetchall()
 
 sql="select distinct user_email from ("
 
-ln=len(results)
+results = execute(cursor, 'search-wp.sql')
 
 for row in results:
 	sql = sql+"\n\t("
 	sql = sql+"select user_email from "+row[0]+"."+row[1]+" where ID in "
 	sql = sql+"(select user_id from "+row[0]+"."+row[2]+" where meta_value like '%\"administrator\"%') "
 	sql = sql+") "
-	if ln>1:
-		sql = sql+"\n\tUNION"
-	ln = ln -1
+	sql = sql+"\n\tUNION"
+
+results = execute(cursor, 'search-phpbb.sql')
+
+for row in results:
+        sql = sql+"\n\t("
+        sql = sql+"select user_email from "+row[0]+"."+row[1]+" where user_id in "
+        sql = sql+"(select user_id from "+row[0]+"."+row[2]+" where group_id=5) "
+        sql = sql+") "
+        sql = sql+"\n\tUNION"
+
+results = execute(cursor, 'search-wiki.sql')
+
+for row in results:
+        sql = sql+"\n\t("
+        sql = sql+"select user_email from "+row[0]+"."+row[1]+" where user_id in "
+        sql = sql+"(select user_id from "+row[0]+"."+row[2]+" where ug_user='sysop') "
+        sql = sql+") "
+        sql = sql+"\n\tUNION"
+
+
+results = execute(cursor, 'search-mumble.sql')
+
+for row in results:
+	sql = sql+"\n\t("
+	sql = sql+"select value user_mail from "+row[0]+"."+row[4]+" where "+row[0]+"."+row[4]+".key=1 and user_id in "
+	sql = sql+"(select user_id from "+row[0]+"."+row[3]+" where group_id in (select group_id from "+row[0]+"."+row[2]+" where name='admin')) "
+        sql = sql+") "
+        sql = sql+"\n\tUNION"
+
+sql = sql[:-7]
 
 sql = sql + "\n) T order by user_email"
 
