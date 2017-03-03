@@ -18,7 +18,6 @@ db = MySQLdb.connect("localhost", user, passwd)
 
 cursor = db.cursor()
 
-
 sql="select distinct user_email from ("
 
 results = execute(cursor, 'search-wp.sql')
@@ -48,7 +47,6 @@ for row in results:
         sql = sql+") "
         sql = sql+"\n\tUNION"
 
-
 results = execute(cursor, 'search-mumble.sql')
 
 for row in results:
@@ -59,6 +57,7 @@ for row in results:
         sql = sql+"\n\tUNION"
 
 results = execute(cursor, 'search-ocax.sql')
+
 for row in results:
         sql = sql+"\n\t("
         sql = sql+"select email user_mail from "+row[0]+"."+row[1]+" where is_team_member=1 or is_editor=1 or is_manager=1 or is_admin=1 "
