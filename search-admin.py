@@ -58,6 +58,13 @@ for row in results:
         sql = sql+") "
         sql = sql+"\n\tUNION"
 
+results = execute(cursor, 'search-ocax.sql')
+for row in results:
+        sql = sql+"\n\t("
+        sql = sql+"select email user_mail from "+row[0]+"."+row[1]+" where is_team_member=1 or is_editor=1 or is_manager=1 or is_admin=1 "
+        sql = sql+") "
+        sql = sql+"\n\tUNION"
+
 sql = sql[:-7]
 
 sql = sql + "\n) T order by user_email"
