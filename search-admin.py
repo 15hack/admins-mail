@@ -64,6 +64,15 @@ for row in results:
         sql = sql+") "
         sql = sql+"\n\tUNION"
 
+results = execute(cursor, 'search-ushahidi.sql')
+
+for row in results:
+        sql = sql+"\n\t("
+        sql = sql+"select email user_mail from "+row[0]+"."+row[1]+" where id in (select user_id from "+row[0]+"."+row[3]+" where role_id in "
+	sql = sql+"(select id from "+row[0]+"."+row[2]+" where (reports_view+reports_edit+reports_evaluation+reports_comments+reports_download+reports_upload)>0))"
+        sql = sql+") "
+        sql = sql+"\n\tUNION"
+
 sql = sql[:-7]
 
 sql = sql + "\n) T order by user_email"
