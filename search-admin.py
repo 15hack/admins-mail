@@ -3,8 +3,8 @@ import getpass
 import MySQLdb
 import sys
 
-user = raw_input("Username: ")
-passwd = getpass.getpass("Password: ")
+user = "readonly" #raw_input("Username: ")
+passwd = "readonly" #getpass.getpass("Password: ")
 all = len(sys.argv)>1 and sys.argv[1] == "--all"
 
 
@@ -50,8 +50,8 @@ for row in results:
 	sql = sql+"\n\t("
 	sql = sql+"select user_email from "+row[0]+"."+row[1]
 	if not all:
-		sql = sql +" where user_id in "
-		sql = sql+"(select user_id from "+row[0]+"."+row[2]+" where ug_user='sysop') "
+		sql = sql+" where user_id in "
+		sql = sql+"(select ug_user from "+row[0]+"."+row[2]+" where ug_group='sysop') "
 	sql = sql+") "
 	sql = sql+"\n\tUNION"
 
