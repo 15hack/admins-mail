@@ -3,8 +3,8 @@ import getpass
 import MySQLdb
 import sys
 
-user = "readonly" #raw_input("Username: ")
-passwd = "readonly" #getpass.getpass("Password: ")
+user = raw_input("Username: ")
+passwd = getpass.getpass("Password: ")
 all = len(sys.argv)>1 and sys.argv[1] == "--all"
 
 
